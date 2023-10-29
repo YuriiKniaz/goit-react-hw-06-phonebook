@@ -1,71 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import app from './App.module.css';
-import { nanoid } from 'nanoid';
 import { ContactForm } from './ContactForm/ContactForm';
 import { Filter } from './Filter/Filter';
 import { ContactList } from './ContactList/ContactList';
+import { getContacts, getFilter } from 'redux/selector';
+import { setFilter } from 'redux/filterSlice';
+import { deleteContact } from 'redux/contactsSlice';
+import { useDispatch, useSelector } from 'react-redux';
+
 export const App = () => {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState('');
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
 
-  const addContact = (name, number) => {
-    const newContact = {
-      name,
-      number,
-      id: nanoid(),
-    };
-
-    const isExist = contacts.some(
-      con => con.name.toLowerCase() === name.toLowerCase()
-    );
-    if (isExist) {
-      alert(`${name} is already exist`);
-      return;
-    }
-
-    setContacts(prev => [newContact, ...prev]);
-  };
-
-  const deleteContact = conId => {
-    setContacts(contacts => {
-      contacts.filter(contact => contact.id !== conId);
-    });
+  const onDeleteContacts = id => {
+    dispatch(deleteContact(id));
   };
 
   const onFilter = e => {
-    setFilter(e.target.value);
+    dispatch(setFilter(e.target.value));
   };
 
-  const getFilteredContacts = () => {
-    return contacts.filter(contact => {
-      return contact.name.toLowerCase().includes(filter.toLowerCase());
-    });
-  };
-
-  useEffect(() => {
-    const contacts = localStorage.getItem('userContacts');
-    const parsed = JSON.parse(contacts);
-    if (parsed) {
-      setContacts(parsed);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (contacts && contacts.length > 0) {
-      localStorage.setItem('userContacts', JSON.stringify(contacts));
-    }
-  }, [contacts]);
+  const getFilteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
 
   return (
     <div className={app.block}>
       <h1 className={app.firstTitle}>Phonebook</h1>
-      <ContactForm onAddContact={addContact} contacts={contacts} />
+      <ContactForm />
 
       <h2 className={app.secondTitle}>Contacts</h2>
       <Filter filter={filter} onFilterChange={onFilter} />
       <ContactList
-        contacts={getFilteredContacts()}
-        deleteContact={deleteContact}
+        contacts={getFilteredContacts}
+        deleteContact={onDeleteContacts}
       />
     </div>
   );

@@ -1,28 +1,39 @@
 import form from './ContactForm.module.css';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts, getName, getNumber } from 'redux/selector';
+import { addContacts, addName, addNumber } from 'redux/contactsSlice';
 
-import React, { useState } from 'react';
-
-export const ContactForm = ({ onAddContact }) => {
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
+export const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+  const name = useSelector(getName);
+  const number = useSelector(getNumber);
 
   const onInputChange = ({ target: { name, value } }) => {
     if (name === 'name') {
-      setName(value);
+      dispatch(addName(value));
     } else {
-      setNumber(value);
+      dispatch(addNumber(value));
     }
   };
 
   const fromReset = () => {
-    setName('');
-    setNumber('');
+    dispatch(addName(''));
+    dispatch(addNumber(''));
   };
 
   const onSubmit = e => {
     e.preventDefault();
-
-    onAddContact(name, number);
+    const newContact = { name, number };
+    const isExist = contacts.some(
+      con => con.name.toLowerCase() === name.toLowerCase()
+    );
+    if (isExist) {
+      alert(`${newContact.name} is already exist`);
+      return;
+    }
+    dispatch(addContacts(newContact));
     fromReset();
   };
 
@@ -34,7 +45,6 @@ export const ContactForm = ({ onAddContact }) => {
           className={form.formInput}
           type="text"
           name="name"
-          // pattern="^[a-zA-Zа-яА-Я]+(([' \\-][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
           title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
           required
           onChange={onInputChange}
@@ -47,7 +57,6 @@ export const ContactForm = ({ onAddContact }) => {
           className={form.formInput}
           type="tel"
           name="number"
-          // pattern="\\+?\\d{1,4}?[ .\\-\\s]?\\(?\\d{1,3}?\\)?[ .\\-\\s]?\\d{1,4}[ .\\-\\s]?\\d{1,4}[ .\\-\\s]?\\d{1,9}"
           title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
           required
           onChange={onInputChange}
