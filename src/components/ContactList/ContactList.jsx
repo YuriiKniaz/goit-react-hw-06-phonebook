@@ -1,9 +1,23 @@
 import list from './ContactList.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteContact } from 'redux/contactsSlice';
+import { getContacts, getFilter } from 'redux/selector';
+export const ContactList = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
 
-export const ContactList = ({ contacts, deleteContact }) => {
+  const onDeleteContacts = id => {
+    dispatch(deleteContact(id));
+  };
+
+  const getFilteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
   return (
     <ul className={list.list}>
-      {contacts.map(({ id, name, number }) => (
+      {getFilteredContacts.map(({ id, name, number }) => (
         <li className={list.listItem} key={id}>
           <p className={list.listPrg}>
             {name}: {number}
@@ -11,7 +25,7 @@ export const ContactList = ({ contacts, deleteContact }) => {
           <button
             className={list.listBtn}
             type="submit"
-            onClick={() => deleteContact(id)}
+            onClick={onDeleteContacts}
           >
             Delete
           </button>

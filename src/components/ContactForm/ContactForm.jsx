@@ -1,26 +1,26 @@
 import form from './ContactForm.module.css';
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getContacts, getName, getNumber } from 'redux/selector';
-import { addContacts, addName, addNumber } from 'redux/contactsSlice';
+import { getContacts } from 'redux/selector';
+import { addContacts } from 'redux/contactsSlice';
 
 export const ContactForm = () => {
   const dispatch = useDispatch();
   const contacts = useSelector(getContacts);
-  const name = useSelector(getName);
-  const number = useSelector(getNumber);
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
 
   const onInputChange = ({ target: { name, value } }) => {
     if (name === 'name') {
-      dispatch(addName(value));
+      setName(value);
     } else {
-      dispatch(addNumber(value));
+      setNumber(value);
     }
   };
 
   const fromReset = () => {
-    dispatch(addName(''));
-    dispatch(addNumber(''));
+    setName('');
+    setNumber('');
   };
 
   const onSubmit = e => {
